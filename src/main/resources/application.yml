@@ -1,0 +1,23 @@
+server:
+  port: 8089
+spring:
+  application:
+    name: gatewayServer
+  cloud:
+    config:
+      password: configPass
+      uri: http://localhost:8088
+      username: configUser
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: schedulerServer
+          uri: http://localhost:8090/
+          predicates:
+            - Path=/test/**
+    discovery:
+      enabled: true
+  config:
+    import: 'configserver:'
