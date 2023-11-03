@@ -1,9 +1,21 @@
 server:
   port: 8089
 spring:
+  main:
+    allow-bean-definition-overriding: true
+  security:
+    oauth2:
+      resourceserver:
+        opaquetoken:
+          introspection-uri: http://localhost:8080/realms/demo/protocol/openid-connect/token/introspect
+          client-id: demo-service
+          client-secret: aYiVjNMXo2eowciMM7E62CpmfXAVMIzC
   application:
     name: gatewayServer
   cloud:
+    consul:
+      discovery:
+        register-health-check: false
     config:
       password: configPass
       uri: http://localhost:8088
