@@ -6,30 +6,52 @@ spring:
   security:
     oauth2:
       resourceserver:
-        opaquetoken:
-          introspection-uri: http://localhost:8080/realms/demo/protocol/openid-connect/token/introspect
-          client-id: demo-service
-          client-secret: aYiVjNMXo2eowciMM7E62CpmfXAVMIzC
+        jwt:
+          issuer-uri: http://localhost:8080/realms/demo
   application:
-    name: gatewayServer
+    name: gateway-server
   cloud:
     consul:
       discovery:
-        register-health-check: false
-    config:
-      password: configPass
-      uri: http://localhost:8088
-      username: configUser
+        instance-id: "${spring.application.name}:${random.int[1,99999]}"
+        tags: gateway-server
+      host: localhost
+      port: 8500
     gateway:
       discovery:
         locator:
           enabled: true
       routes:
-        - id: schedulerServer
-          uri: http://localhost:8090/
+        - id: scheduler-server
+          uri: lb://SCHEDULER-SERVER
           predicates:
-            - Path=/test/**
+            - Path=/scheduler/**
+          filters:
+            - RewritePath=/scheduler/(?<path>.*), /$\{path}
+            - RemoveRequestHeader= Cookie,Set-Cookie
     discovery:
       enabled: true
-  config:
-    import: 'configserver:'
+
+management:
+  info:
+    env:
+      enabled: true
+  endpoint:
+    gateway:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      cors:
+        allowed-origins: '*'
+        allowed-headers: '*'
+        allowed-methods: '*'
+
+auth:
+  audience: demo-service-aud
+
+logging:
+  level:
+    web: debug
+
